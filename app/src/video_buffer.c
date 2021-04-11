@@ -7,7 +7,9 @@
 #include "util/log.h"
 
 bool
-video_buffer_init(struct video_buffer *vb) {
+video_buffer_init(struct video_buffer *vb,
+                  const struct video_buffer_callbacks *cbs,
+                  void *cbs_userdata) {
     vb->pending_frame = av_frame_alloc();
     if (!vb->pending_frame) {
         return false;
@@ -29,9 +31,10 @@ video_buffer_init(struct video_buffer *vb) {
     // there is initially no frame, so consider it has already been consumed
     vb->pending_frame_consumed = true;
 
-    // The callbacks must be set by the consumer via
-    // video_buffer_set_consumer_callbacks()
-    vb->cbs = NULL;
+    assert(cbs);
+    assert(cbs->on_frame_available);
+    vb->cbs = cbs;
+    vb->cbs_userdata = cbs_userdata;
 
     return true;
 }
@@ -48,17 +51,6 @@ swap_frames(AVFrame **lhs, AVFrame **rhs) {
     AVFrame *tmp = *lhs;
     *lhs = *rhs;
     *rhs = tmp;
-}
-
-void
-video_buffer_set_consumer_callbacks(struct video_buffer *vb,
-                                    const struct video_buffer_callbacks *cbs,
-                                    void *cbs_userdata) {
-    assert(!vb->cbs); // must be set only once
-    assert(cbs);
-    assert(cbs->on_frame_available);
-    vb->cbs = cbs;
-    vb->cbs_userdata = cbs_userdata;
 }
 
 bool

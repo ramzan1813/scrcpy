@@ -274,17 +274,16 @@ screen_init(struct screen *screen, struct fps_counter *fps_counter,
     screen->fullscreen = false;
     screen->maximized = false;
 
-    bool ok = video_buffer_init(&screen->vb);
-    if (!ok) {
-        LOGE("Could not initialize video buffer");
-        return false;
-    }
-
     static const struct video_buffer_callbacks cbs = {
         .on_frame_available = on_frame_available,
         .on_frame_skipped = on_frame_skipped,
     };
-    video_buffer_set_consumer_callbacks(&screen->vb, &cbs, screen);
+
+    bool ok = video_buffer_init(&screen->vb, &cbs, screen);
+    if (!ok) {
+        LOGE("Could not initialize video buffer");
+        return false;
+    }
 
     screen->frame_size = params->frame_size;
     screen->rotation = params->rotation;

@@ -49,15 +49,11 @@ struct video_buffer_callbacks {
 };
 
 bool
-video_buffer_init(struct video_buffer *vb);
+video_buffer_init(struct video_buffer *vb,
+                  const struct video_buffer_callbacks *cbs, void *cbs_userdata);
 
 void
 video_buffer_destroy(struct video_buffer *vb);
-
-void
-video_buffer_set_consumer_callbacks(struct video_buffer *vb,
-                                    const struct video_buffer_callbacks *cbs,
-                                    void *cbs_userdata);
 
 bool
 video_buffer_push(struct video_buffer *vb, const AVFrame *frame);
